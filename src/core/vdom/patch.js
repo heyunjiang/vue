@@ -141,10 +141,12 @@ export function createPatchFunction (backend) {
     }
 
     vnode.isRootInsert = !nested // for transition enter check
+    // 如果是组件，则开始初始化组件
     if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
       return
     }
 
+    // 以下都是普通节点的渲染
     const data = vnode.data
     const children = vnode.children
     const tag = vnode.tag
@@ -163,6 +165,7 @@ export function createPatchFunction (backend) {
         }
       }
 
+      // 调用 createElement 和 createElementNS 生成 dom 节点
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
         : nodeOps.createElement(tag, vnode)
@@ -218,6 +221,7 @@ export function createPatchFunction (backend) {
       // it should've created a child instance and mounted it. the child
       // component also has set the placeholder vnode's elm.
       // in that case we can just return the element and be done.
+      // 真实初始化一个组件类型的 vnode 节点，传入渲染队列，再次从内部调用一次 vm._update(vm._render())，形成循环
       if (isDef(vnode.componentInstance)) {
         initComponent(vnode, insertedVnodeQueue)
         insert(parentElm, vnode.elm, refElm)
@@ -697,6 +701,7 @@ export function createPatchFunction (backend) {
     }
   }
 
+  // 返回渲染好的真实 dom 节点
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
@@ -704,6 +709,7 @@ export function createPatchFunction (backend) {
     }
 
     let isInitialPatch = false
+    // 待渲染的 vnode 队列
     const insertedVnodeQueue = []
 
     if (isUndef(oldVnode)) {

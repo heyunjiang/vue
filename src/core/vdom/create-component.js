@@ -98,6 +98,7 @@ const componentVNodeHooks = {
 
 const hooksToMerge = Object.keys(componentVNodeHooks)
 
+// 生成组件化的 vnode 节点，所以一个组件也是一个 vnode 节点，内部 div 元素也是一个 vnode 节点，这2个 vnode 节点类型不同
 export function createComponent (
   Ctor: Class<Component> | Function | Object | void,
   data: ?VNodeData,

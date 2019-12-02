@@ -29,6 +29,7 @@ export function setActiveInstance(vm: Component) {
   }
 }
 
+// 处理实例父子关系，从 options 从读取数据
 export function initLifecycle (vm: Component) {
   const options = vm.$options
 
@@ -38,6 +39,7 @@ export function initLifecycle (vm: Component) {
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
     }
+    // 将当前实例添加到父实例的后代中
     parent.$children.push(vm)
   }
 
@@ -94,6 +96,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
     }
   }
 
+  // 从这里我们可以看到一个实例对象上挂载了哪些属性：父子实例关系、全局实例共享属性、真实 dom、vnode
   Vue.prototype.$destroy = function () {
     const vm: Component = this
     if (vm._isBeingDestroyed) {
@@ -104,9 +107,10 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // remove self from parent
     const parent = vm.$parent
     if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
+      // 1. 将当前孩子从父节点实例中移除
       remove(parent.$children, vm)
     }
-    // teardown watchers
+    // 2. teardown watchers
     if (vm._watcher) {
       vm._watcher.teardown()
     }
@@ -116,22 +120,28 @@ export function lifecycleMixin (Vue: Class<Component>) {
     }
     // remove reference from data ob
     // frozen object may not have observer.
+    // 3. 减少总体实例个数
     if (vm._data.__ob__) {
       vm._data.__ob__.vmCount--
     }
     // call the last hook...
+    // 4. 标识当前实例状态
     vm._isDestroyed = true
     // invoke destroy hooks on current rendered tree
+    // 5. 更新真实 dom
     vm.__patch__(vm._vnode, null)
     // fire destroyed hook
     callHook(vm, 'destroyed')
     // turn off all instance listeners.
+    // 6. 关闭所有实例的事件
     vm.$off()
     // remove __vue__ reference
+    // 7. 清除当前实例所引用的真实 dom 节点
     if (vm.$el) {
       vm.$el.__vue__ = null
     }
     // release circular reference (#6759)
+    // 8. 释放 vnode 之间的循环引用关系
     if (vm.$vnode) {
       vm.$vnode.parent = null
     }
@@ -187,6 +197,7 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
+      // vm._render 返回的是一个 vnode 节点对象
       vm._update(vm._render(), hydrating)
     }
   }
@@ -194,6 +205,7 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+  // 每个实例 vm 都对应一个 watcher 实例
   new Watcher(vm, updateComponent, noop, {
     before () {
       if (vm._isMounted && !vm._isDestroyed) {

@@ -44,6 +44,13 @@ export function createElement (
   return _createElement(context, tag, data, children, normalizationType)
 }
 
+// 在根节点，会传入根组件的名字，比如 <App />
+// 
+/**
+ * 从这里可以看出，总共目前有2种对象：
+ * 1. vue 实例 vm 对象
+ * 2. vnode 节点对象: component 组件 vnode 对象，普通元素 div vnode 对象，文本 text vnode 对象
+ */
 export function _createElement (
   context: Component,
   tag?: string | Class<Component> | Function | Object,

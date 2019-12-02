@@ -66,6 +66,8 @@ export function renderMixin (Vue: Class<Component>) {
     return nextTick(fn, this)
   }
 
+  // 在 vm._update(vnode) 节点时，通过 vm._render 间接调用 vm.$createElement 生成 vnode，
+  // 是因为 vm._render 会对 vnode 做父子关系引用添加
   Vue.prototype._render = function (): VNode {
     const vm: Component = this
     const { render, _parentVnode } = vm.$options
@@ -88,7 +90,9 @@ export function renderMixin (Vue: Class<Component>) {
       // separately from one another. Nested component's render fns are called
       // when parent component is patched.
       currentRenderingInstance = vm
+      // 执行 render ，render 内部直接调用 createElement
       vnode = render.call(vm._renderProxy, vm.$createElement)
+      console.log('render 生成的 vnode: ', vnode);
     } catch (e) {
       handleError(e, vm, `render`)
       // return error render result,
